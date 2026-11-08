@@ -36,10 +36,7 @@ def main():
                 game.list_quizzes()
 
             elif choice == "4":
-                if game.best_score is None:
-                    print("\n아직 퀴즈를 풀지 않았습니다.")
-                else:
-                    print(f"\n현재 최고 정답 수: {game.best_score}개")
+             game.show_best_score()
 
             elif choice == "5":
                 print("\n퀴즈 게임을 종료합니다.")
