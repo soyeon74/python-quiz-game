@@ -79,7 +79,7 @@ class QuizGame:
             print(f"저장 중 오류가 발생했습니다: {error}")
 
     def get_number_input(self, prompt, min_value, max_value):
-        """지정한 범위의 숫자를 안전하게 입력받습니다."""
+        """지정된 범위의 숫자를 안전하게 입력받습니다."""
         while True:
             try:
                 value = input(prompt).strip()
@@ -227,8 +227,8 @@ class QuizGame:
         else:
             print(f"최고 정답 수: {self.best_score}개")
 
-        def show_menu(self):
-         """메인 메뉴를 화면에 출력합니다."""
+    def show_menu(self):
+        """메인 메뉴를 화면에 출력합니다."""
         print("\n================================")
         print("     Python & Git 퀴즈 게임")
         print("================================")
@@ -285,4 +285,4 @@ class QuizGame:
             )
 
         finally:
-            self.save_state()        
+            self.save_state()
