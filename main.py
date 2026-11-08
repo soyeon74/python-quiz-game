@@ -1,5 +1,3 @@
-from quiz import Quiz
-from quiz_data import get_default_quizzes
 from quiz_game import QuizGame
 
 
@@ -32,16 +30,19 @@ def main():
                 game.play_quiz()
 
             elif choice == "2":
-                print("퀴즈 추가 기능을 준비 중입니다.")
+                game.add_quiz()
 
             elif choice == "3":
-                print("퀴즈 목록 기능을 준비 중입니다.")
+                game.list_quizzes()
 
             elif choice == "4":
-                print("점수 확인 기능을 준비 중입니다.")
+                if game.best_score is None:
+                    print("\n아직 퀴즈를 풀지 않았습니다.")
+                else:
+                    print(f"\n현재 최고 정답 수: {game.best_score}개")
 
             elif choice == "5":
-                print("퀴즈 게임을 종료합니다.")
+                print("\n퀴즈 게임을 종료합니다.")
                 break
 
             else:
