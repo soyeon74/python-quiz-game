@@ -112,3 +112,5 @@ JSON 데이터가 손상되었거나 읽는 과정에서 오류가 발생하면 
 
 ```powershell
 cd python-quiz-game
+## Clone/Pull 실습
+별도 clone 환경에서 README를 수정하고 원본 프로젝트에서 pull하여 동기화하는 Git 실습을 수행했습니다.
