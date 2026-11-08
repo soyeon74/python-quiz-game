@@ -1,3 +1,6 @@
+from quiz_game import QuizGame
+
+
 def show_menu():
     print("\n================================")
     print("     Python & Git 퀴즈 게임")
@@ -11,6 +14,8 @@ def show_menu():
 
 
 def main():
+    game = QuizGame()
+
     while True:
         show_menu()
 
@@ -22,16 +27,21 @@ def main():
                 continue
 
             if choice == "1":
-                print("퀴즈 풀기 기능을 준비 중입니다.")
+                game.play_quiz()
+
             elif choice == "2":
                 print("퀴즈 추가 기능을 준비 중입니다.")
+
             elif choice == "3":
                 print("퀴즈 목록 기능을 준비 중입니다.")
+
             elif choice == "4":
                 print("점수 확인 기능을 준비 중입니다.")
+
             elif choice == "5":
                 print("퀴즈 게임을 종료합니다.")
                 break
+
             else:
                 print("잘못된 입력입니다. 1~5 중에서 선택하세요.")
 
