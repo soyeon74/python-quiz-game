@@ -226,3 +226,63 @@ class QuizGame:
             print("아직 퀴즈를 풀지 않았습니다.")
         else:
             print(f"최고 정답 수: {self.best_score}개")
+
+        def show_menu(self):
+         """메인 메뉴를 화면에 출력합니다."""
+        print("\n================================")
+        print("     Python & Git 퀴즈 게임")
+        print("================================")
+        print("1. 퀴즈 풀기")
+        print("2. 퀴즈 추가")
+        print("3. 퀴즈 목록")
+        print("4. 점수 확인")
+        print("5. 종료")
+        print("================================")
+
+    def run(self):
+        """퀴즈 게임의 메인 메뉴를 실행합니다."""
+        try:
+            while True:
+                self.show_menu()
+
+                choice = input(
+                    "메뉴 번호를 선택하세요: "
+                ).strip()
+
+                if choice == "":
+                    print(
+                        "입력값이 없습니다. "
+                        "1~5 중에서 선택하세요."
+                    )
+                    continue
+
+                if choice == "1":
+                    self.play_quiz()
+
+                elif choice == "2":
+                    self.add_quiz()
+
+                elif choice == "3":
+                    self.list_quizzes()
+
+                elif choice == "4":
+                    self.show_best_score()
+
+                elif choice == "5":
+                    print("\n퀴즈 게임을 종료합니다.")
+                    break
+
+                else:
+                    print(
+                        "잘못된 입력입니다. "
+                        "1~5 중에서 선택하세요."
+                    )
+
+        except (KeyboardInterrupt, EOFError):
+            print(
+                "\n입력이 중단되었습니다. "
+                "안전하게 종료합니다."
+            )
+
+        finally:
+            self.save_state()        
