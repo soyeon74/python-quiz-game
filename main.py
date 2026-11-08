@@ -1,3 +1,5 @@
+from quiz import Quiz
+from quiz_data import get_default_quizzes
 from quiz_game import QuizGame
 
 
