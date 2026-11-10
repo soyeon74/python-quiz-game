@@ -30,9 +30,15 @@ class QuizGame:
 
             quiz_data = data.get("quizzes", [])
             loaded_quizzes = []
+            default_hints = {
+                quiz.question: quiz.hint
+                for quiz in get_default_quizzes()
+            }
 
             for item in quiz_data:
                 quiz = Quiz.from_dict(item)
+                if not quiz.hint:
+                    quiz.hint = default_hints.get(quiz.question, "")
                 if len(quiz.choices) != 4:
                     raise ValueError("선택지는 반드시 4개여야 합니다.")
                 if quiz.answer < 1 or quiz.answer > 4:
