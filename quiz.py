@@ -1,13 +1,13 @@
 class Quiz:
-    def __init__(self, question, choices, answer):
+    def __init__(self, question, choices, answer, hint=""):
         self.question = question
         self.choices = choices
         self.answer = answer
+        self.hint = hint
 
     def display(self):
         """퀴즈 문제와 선택지를 화면에 출력합니다."""
         print(f"\n문제: {self.question}")
-
         for index, choice in enumerate(self.choices, start=1):
             print(f"{index}. {choice}")
 
@@ -21,6 +21,7 @@ class Quiz:
             "question": self.question,
             "choices": self.choices,
             "answer": self.answer,
+            "hint": self.hint,
         }
 
     @classmethod
@@ -30,4 +31,5 @@ class Quiz:
             data["question"],
             data["choices"],
             data["answer"],
+            data.get("hint", ""),
         )
