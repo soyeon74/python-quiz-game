@@ -681,7 +681,58 @@ python-quiz-game/
 
 ---
 
-## 16. Git / GitHub 이해하기
+## 16. 과제 목표 핵심 개념 정리
+
+과제에서 요구하는 “스스로 설명할 수 있어야 하는 내용”을 현재 프로젝트와 연결해 정리했습니다.
+
+### 변수와 기본 자료형
+
+- **변수(variable)**: 값을 저장해 두고 이름으로 다시 사용하기 위한 공간입니다. 예: `score = 0`
+- **int**: 정수. 예: 정답 번호 `2`, 점수 `5`
+- **str**: 문자열. 예: 문제 문장, 메뉴 입력값
+- **bool**: 참/거짓 값인 `True`, `False`. `check_answer()`의 비교 결과가 이에 해당합니다.
+- **list**: 여러 값을 순서대로 저장합니다. 예: `choices`, `self.quizzes`
+- **dict**: 값을 key-value 형태로 저장합니다. JSON으로 저장할 퀴즈와 점수 데이터를 구성할 때 사용합니다.
+
+### 함수·매개변수·반환값
+
+```python
+def check_answer(self, user_answer):
+    return user_answer == self.answer
+```
+
+- `def`는 함수나 메서드를 정의합니다.
+- `user_answer`는 호출할 때 전달받는 **매개변수**입니다.
+- `return`은 처리 결과를 호출한 곳으로 돌려줍니다.
+- 위 메서드는 입력한 답이 정답과 같은지를 비교해 `True` 또는 `False`를 반환합니다.
+
+### 속성과 메서드
+
+- **속성(attribute)**: 객체가 가지고 있는 데이터입니다. 예: `self.question`, `self.choices`, `self.answer`
+- **메서드(method)**: 객체가 수행하는 기능입니다. 예: `display()`, `check_answer()`, `play_quiz()`, `save_state()`
+
+### 파일 열기·읽기·쓰기
+
+```python
+with open(self.state_file, "r", encoding="utf-8") as file:
+    data = json.load(file)
+
+with open(self.state_file, "w", encoding="utf-8") as file:
+    json.dump(data, file, ensure_ascii=False, indent=2)
+```
+
+- `"r"` = 파일 읽기
+- `"w"` = 파일 쓰기
+- `encoding="utf-8"` = 한글 등을 UTF-8 방식으로 처리
+- `with open(...)` = 파일 사용이 끝나면 안전하게 닫히도록 관리
+
+### JSON을 사용하는 이유
+
+JSON은 데이터를 **키와 값 중심의 구조로 저장하는 텍스트 형식**입니다. 이 프로젝트에서는 프로그램을 종료한 뒤에도 퀴즈와 최고 점수를 다시 불러오기 위해 사용합니다.
+
+---
+
+## 17. Git / GitHub 이해하기
 
 **Git**은 코드 변경 과정을 기록하는 버전 관리 도구이고, **GitHub**는 Git 저장소를 온라인에 보관·공유하는 서비스입니다.
 
@@ -712,7 +763,7 @@ GitHub
 
 ---
 
-## 17. Git / GitHub 수행 내역
+## 18. Git / GitHub 수행 내역
 
 - `git init`, `add`, `commit`, `checkout`, `push`, `clone`, `pull` 수행
 - `feature/quiz-play` 브랜치 생성 후 `main` 병합
@@ -746,7 +797,7 @@ git log --oneline --graph --decorate --all
 
 ---
 
-## 18. 보너스 기능
+## 19. 보너스 기능
 
 - `random.sample()` 문제 랜덤 출제
 - 원하는 문제 수 선택
@@ -757,7 +808,7 @@ git log --oneline --graph --decorate --all
 
 ---
 
-## 19. 최종 검증 항목
+## 20. 최종 검증 항목
 
 - 기본 퀴즈 5개 이상
 - 퀴즈 풀기·추가·목록·점수 확인
@@ -773,7 +824,7 @@ git log --oneline --graph --decorate --all
 
 ---
 
-## 20. 평가 전에 말할 수 있어야 하는 핵심 답변
+## 21. 평가 전에 말할 수 있어야 하는 핵심 답변
 
 **Q. 전체 구조는?**  
 > `main.py`가 시작하고 `QuizGame`이 게임 전체를 관리합니다. 각 문제는 `Quiz` 객체로 관리하고, 기본 문제는 `quiz_data.py`에서 가져오며, 추가 문제와 점수는 `state.json`에 저장합니다.
@@ -804,7 +855,7 @@ git log --oneline --graph --decorate --all
 
 ---
 
-## 21. 과제 제출 증빙 정리
+## 22. 과제 제출 증빙 정리
 
 과제 원문은 코드뿐 아니라 **실행 화면과 Git 작업 증거 스크린샷**도 제출하도록 요구합니다. 저장소의 코드와 Git 이력으로 확인되는 내용과, 별도로 캡처가 필요한 내용을 구분합니다.
 
@@ -832,13 +883,9 @@ docs/screenshots/
 
 > **주의:** 위 경로는 제출용 권장 구조입니다. 실제 이미지 파일이 저장소에 업로드되기 전에는 README에서 캡처가 존재한다고 표시하지 않습니다.
 
-### Docker 실습과 이번 미션의 관계
-
-이전 개발 워크스테이션 실습에서 Docker 이미지·컨테이너 실행을 학습했지만, **이번 「컴퓨터에게 명령 내리는 말(파이썬) 처음 배우기」 과제의 필수 요구사항에는 Docker가 없습니다.** 따라서 Docker를 이 퀴즈 프로그램의 구현 기능이나 필수 제출 증빙으로 표시하지 않습니다. 필요하면 별도의 개발환경 학습 증빙으로 추가할 수 있습니다.
-
 ---
 
-## 22. 제출 요구사항 체크
+## 23. 제출 요구사항 체크
 
 | 요구사항 | 결과 |
 |---|---|
@@ -859,7 +906,7 @@ docs/screenshots/
 
 ---
 
-## 23. GitHub 저장소
+## 24. GitHub 저장소
 
 https://github.com/soyeon74/python-quiz-game
 
