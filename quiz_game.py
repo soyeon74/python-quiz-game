@@ -1,5 +1,6 @@
 import json
 import random
+import shutil
 from pathlib import Path
 
 from quiz import Quiz
@@ -9,6 +10,7 @@ from quiz_data import get_default_quizzes
 class QuizGame:
     def __init__(self):
         self.state_file = Path(__file__).resolve().parent / "state.json"
+        self.backup_file = Path(__file__).resolve().parent / "state.json.bak"
         self.quizzes = []
         self.best_score = None
         self.score_history = []
@@ -60,11 +62,40 @@ class QuizGame:
             ValueError,
         ) as error:
             print(f"저장 파일을 읽는 중 문제가 발생했습니다: {error}")
-            print("기본 퀴즈로 복구합니다.")
+
+            if self.restore_backup():
+                return
+
+            print("사용 가능한 백업이 없어 기본 퀴즈로 복구합니다.")
             self.quizzes = get_default_quizzes()
             self.best_score = None
             self.score_history = []
             self.save_state()
+
+    def restore_backup(self):
+        """state.json이 손상되었을 때 백업 파일에서 데이터를 복구합니다."""
+        if not self.backup_file.exists():
+            return False
+
+        try:
+            with open(self.backup_file, "r", encoding="utf-8") as file:
+                data = json.load(file)
+
+            loaded_quizzes = [Quiz.from_dict(item) for item in data.get("quizzes", [])]
+            if not loaded_quizzes:
+                return False
+
+            for quiz in loaded_quizzes:
+                if len(quiz.choices) != 4 or not 1 <= quiz.answer <= 4:
+                    return False
+
+            self.quizzes = loaded_quizzes
+            self.best_score = data.get("best_score")
+            self.score_history = data.get("score_history", [])
+            print("백업 파일(state.json.bak)에서 데이터를 복구했습니다.")
+            return True
+        except (json.JSONDecodeError, OSError, KeyError, TypeError, ValueError):
+            return False
 
     def save_state(self):
         """현재 퀴즈와 점수 정보를 state.json에 저장합니다."""
@@ -75,8 +106,19 @@ class QuizGame:
         }
 
         try:
+            # 기존 state.json이 정상 JSON일 때만 직전 정상본으로 백업합니다.
+            if self.state_file.exists():
+                try:
+                    with open(self.state_file, "r", encoding="utf-8") as current_file:
+                        json.load(current_file)
+                    shutil.copy2(self.state_file, self.backup_file)
+                except (json.JSONDecodeError, OSError):
+                    pass
+
             with open(self.state_file, "w", encoding="utf-8") as file:
                 json.dump(data, file, ensure_ascii=False, indent=2)
+        except PermissionError:
+            print("저장 권한이 없습니다. state.json 파일 또는 프로젝트 폴더의 쓰기 권한을 확인하세요.")
         except OSError as error:
             print(f"저장 중 오류가 발생했습니다: {error}")
 
