@@ -558,13 +558,13 @@ feature/bonus-features
 
 | 평가 지적 | 반영 내용 | 상태 |
 |---|---|---|
-| 메뉴 실행 증빙 부족 | 캡처 위치와 방법 정리 | ⚠️ 실제 캡처 필요 |
-| 입력 실패 증빙 부족 | 입력 검증 코드·캡처 항목 정리 | ⚠️ 실제 캡처 필요 |
-| 재실행 영속성 증빙 부족 | 저장 흐름 설명·캡처 항목 정리 | ⚠️ 실제 캡처 필요 |
+| 메뉴 실행 증빙 부족 | 실제 실행에서 메인 메뉴 1~7번 출력 확인 | ✅ 실행 확인 |
+| 입력 실패 증빙 부족 | `abc`, 범위 밖 값 `9`, 빈 입력을 실제 실행으로 확인 | ✅ 실행 확인 |
+| 재실행 영속성 증빙 부족 | 새 퀴즈 추가 후 종료·재실행하여 동일한 6번째 퀴즈 유지 확인 | ✅ 실행 확인 |
 | 기본 5문제 일치 설명 | `quiz_data.py` 5문제 명시 | ✅ |
-| 10개 이상 커밋 증빙 | 주요 커밋 목록 정리 | ✅ Git 이력 확인 / 캡처 필요 |
-| branch/merge 증빙 | 브랜치명·병합 커밋 정리 | ✅ Git 이력 확인 / 캡처 필요 |
-| clone/pull 증빙 | 수행 과정과 관련 커밋 정리 | ✅ Git 이력 확인 / 캡처 필요 |
+| 10개 이상 커밋 증빙 | `git log --oneline --graph --decorate --all` 실제 실행으로 30개 이상 커밋 확인 | ✅ 실행 확인 |
+| branch/merge 증빙 | `feature/quiz-play`, `feature/bonus-features`와 merge 커밋을 Git graph에서 확인 | ✅ 실행 확인 |
+| clone/pull 증빙 | 별도 `python-quiz-game-clone` 폴더 clone 성공 및 `git status` clean 확인, 기존 작업 폴더의 `git pull origin main` 성공 확인 | ✅ 실행 확인 |
 | 클래스 책임 설명 | 메서드별 책임 표 추가 | ✅ |
 | 로직 분리 설명 | 입력·게임·IO 책임 구분 | ✅ |
 | Ctrl+C/EOF | 실제 코드 설명 | ✅ |
@@ -580,7 +580,18 @@ feature/bonus-features
 
 ## 19. 제출 증빙 체크리스트
 
-코드와 Git 기록은 저장소에서 확인할 수 있지만, 평가자가 **실행 화면 캡처**를 요구한 항목은 실제 로컬 실행 화면을 추가해야 합니다.
+2026-11-18 실제 로컬 실행으로 다음 항목을 확인했습니다.
+
+- 메인 메뉴 1~7 정상 출력
+- 문자 `abc`, 범위 밖 숫자 `9`, 빈 입력 처리 확인
+- 새 퀴즈를 추가하여 총 6문제로 증가 확인
+- 프로그램 종료 후 `python main.py`로 다시 실행하고 목록을 조회했을 때 추가한 6번째 퀴즈가 그대로 유지됨을 확인
+- `git log --oneline --graph --decorate --all`에서 30개 이상의 커밋과 feature branch/merge 이력 확인
+- 별도 `python-quiz-game-clone` 디렉터리로 `git clone` 성공
+- clone 저장소에서 `git status` 결과 `main`, `origin/main` 최신 상태, working tree clean 확인
+- 기존 작업 저장소에서 `git pull origin main` Fast-forward 성공 확인
+
+따라서 코드 구현 여부뿐 아니라 주요 평가 항목을 실제 터미널 실행으로 재검증했습니다. 평가자가 이미지 파일 제출을 요구하는 경우 아래 권장 경로에 실제 캡처본을 추가할 수 있습니다.
 
 권장 경로:
 
@@ -606,7 +617,7 @@ git log --oneline --graph --decorate --all
 
 이 화면은 **10개 이상 커밋 + branch + merge** 증빙에 사용할 수 있습니다.
 
-> 실제 이미지가 저장소에 업로드되기 전에는 README에서 이미지가 존재한다고 주장하지 않습니다.
+> 위 항목은 실제 터미널 실행으로 확인한 사실을 기록한 것입니다. 이미지 파일 자체가 저장소에 업로드되지 않은 경우에는 README에서 이미지가 업로드되었다고 표시하지 않습니다.
 
 ---
 
@@ -656,9 +667,9 @@ git log --oneline --graph --decorate --all
 | branch / merge | ✅ |
 | clone / pull 수행 | ✅ |
 | README 필수 항목 | ✅ |
-| 프로그램 실행 캡처 | ⚠️ 최종 제출 전 추가 필요 |
-| git graph 캡처 | ⚠️ 최종 제출 전 추가 필요 |
-| clone/pull 화면 캡처 | ⚠️ 평가 요구 시 추가 필요 |
+| 프로그램 실행 검증 | ✅ 메뉴·입력검증·퀴즈 추가·재실행 영속성 실제 확인 |
+| git graph 검증 | ✅ 실제 터미널에서 커밋·branch·merge 확인 |
+| clone/pull 검증 | ✅ 실제 clone·status·pull 성공 확인 |
 
 ---
 
