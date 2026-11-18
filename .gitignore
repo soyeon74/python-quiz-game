@@ -3,3 +3,6 @@
 .venv/
 venv/
 .vscode/
+
+# 실행 중 생성되는 백업 파일
+state.json.bak
