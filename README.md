@@ -906,6 +906,169 @@ docs/screenshots/
 
 ---
 
+
+## 평가 피드백 보완 사항
+
+평가에서 지적된 부족한 점을 **실제 구현 보완**, **문서 보완**, **사용자 실행 증빙 필요**로 구분하여 반영했습니다.
+
+### 1. 실제 코드로 보완한 항목
+
+#### state.json 백업·복구와 권한 오류 안내
+
+`save_state()`는 기존 `state.json`이 정상 JSON이면 저장 전에 `state.json.bak`으로 복사합니다. 이후 원본 JSON이 손상되어 `load_state()`가 실패하면 `restore_backup()`이 백업을 먼저 검사하고 복구합니다. 백업도 사용할 수 없을 때만 기본 퀴즈로 초기화합니다.
+
+```text
+정상 저장
+state.json → state.json.bak 백업 → 새 state.json 저장
+
+손상 발생
+state.json 읽기 실패
+        ↓
+state.json.bak 복구 시도
+        ↓
+성공: 백업 데이터 사용
+실패: 기본 퀴즈 사용
+```
+
+쓰기 권한이 없는 경우 `PermissionError`를 별도로 처리하여 다음과 같이 안내합니다.
+
+```text
+저장 권한이 없습니다. state.json 파일 또는 프로젝트 폴더의 쓰기 권한을 확인하세요.
+```
+
+`state.json.bak`은 실행 중 자동 생성되는 파일이므로 `.gitignore`에 등록했습니다.
+
+### 2. Quiz와 QuizGame 책임 경계
+
+| 클래스/메서드 | 책임 |
+|---|---|
+| `Quiz.__init__()` | 문제 하나의 문제·선택지·정답·힌트 보관 |
+| `Quiz.display()` | 문제와 선택지 출력 |
+| `Quiz.check_answer()` | 정답 여부 판단 |
+| `Quiz.to_dict()/from_dict()` | Quiz 객체와 저장용 dict 사이 변환 |
+| `QuizGame.get_number_input()` | 숫자 입력 검증 |
+| `QuizGame.get_quiz_answer()` | 정답·힌트 입력 처리 |
+| `QuizGame.play_quiz()` | 한 게임의 출제·채점·점수 갱신 |
+| `QuizGame.add_quiz()/delete_quiz()` | 퀴즈 데이터 변경 |
+| `QuizGame.load_state()/save_state()` | JSON 읽기·쓰기 |
+| `QuizGame.restore_backup()` | 손상 시 백업 데이터 복구 |
+| `QuizGame.run()` | 메뉴 반복과 전체 흐름 제어 |
+
+이처럼 **Quiz는 문제 하나**, **QuizGame은 여러 문제와 게임 흐름**을 담당하도록 책임을 분리했습니다. 클래스는 같은 구조의 퀴즈를 반복 생성할 수 있어 **추상화와 재사용성**에 유리하고, 기능별 수정 범위를 줄일 수 있습니다.
+
+### 3. JSON을 선택한 이유
+
+JSON은 `list`, `dict`처럼 계층적인 데이터를 그대로 표현할 수 있어 문제 하나에 문제·선택지·정답·힌트를 함께 저장하기 쉽습니다. CSV는 표 형태의 단순 데이터에는 편리하지만 선택지처럼 목록이 들어가는 중첩 구조를 표현하려면 별도 변환이 필요합니다. 이 프로젝트처럼 규모가 작은 로컬 프로그램에서는 사람이 읽기 쉽고 Python의 `json` 표준 라이브러리만으로 사용할 수 있는 JSON이 적합하다고 판단했습니다.
+
+### 4. 커밋 단위와 메시지 규칙
+
+앞으로의 커밋은 **한 커밋에 하나의 목적**을 원칙으로 합니다.
+
+| 타입 | 용도 | 예 |
+|---|---|---|
+| `Feat` | 기능 추가 | `Feat: state.json 백업 복구 기능 추가` |
+| `Fix` | 오류 수정 | `Fix: 잘못된 입력 처리 오류 수정` |
+| `Refactor` | 기능 변화 없는 구조 개선 | `Refactor: 입력 검증 책임 분리` |
+| `Docs` | README 등 문서 변경 | `Docs: 평가 증빙 절차 추가` |
+| `Chore` | 설정·관리 작업 | `Chore: 백업 파일 Git 제외` |
+
+메시지는 **`타입: 변경 내용 요약`** 형식을 사용하고, 기능 코드와 문서 수정처럼 목적이 다른 변경은 가능한 한 별도 커밋으로 분리합니다.
+
+### 5. 1,000개 이상 퀴즈가 될 경우
+
+현재 프로그램은 시작할 때 JSON 전체를 읽어 `self.quizzes` 리스트에 올리고, 목록도 리스트를 순회합니다. 따라서 데이터가 커질수록 로딩·저장·목록 출력 비용도 함께 증가합니다.
+
+현재 과제는 소규모 학습용 프로그램이므로 실제 DB 도입까지는 하지 않았습니다. **1,000개 이상으로 확장해야 한다면** 다음을 검토할 수 있습니다.
+
+- 목록을 20~50개씩 보여주는 페이징
+- 전체 JSON을 매번 저장하지 않는 구조
+- Python 표준 라이브러리 `sqlite3`를 이용한 로컬 DB 전환
+- 문제 ID 또는 카테고리 인덱스를 이용한 검색
+- `time.perf_counter()`와 `tracemalloc`을 이용한 로딩 시간·메모리 측정
+
+> 위 내용은 **향후 확장 계획**이며, 현재 코드가 1,000개 데이터에서 벤치마크되었다는 의미는 아닙니다.
+
+### 6. 요구사항 변경 시 수정 위치
+
+| 요구 변경 | 주요 수정 위치 | 함께 확인할 부분 |
+|---|---|---|
+| 4지선다 → 5지선다 | `Quiz`, `add_quiz()`, `get_quiz_answer()`, `load_state()` | 기존 state.json 호환성 |
+| 점수 계산 방식 변경 | `play_quiz()`, `show_best_score()` | best_score 저장 기준 |
+| Quiz 항목 추가 | `Quiz.__init__()`, `to_dict()`, `from_dict()` | JSON 스키마 |
+| JSON → DB | `load_state()`, `save_state()`, `restore_backup()` | 백업·복구 방식 |
+| 메뉴 기능 추가 | `show_menu()`, `run()` | 입력 허용 범위 |
+| 출제 방식 변경 | `play_quiz()` | random 사용 여부 |
+
+즉 요구사항이 바뀌면 **데이터 모델 → 게임 로직 → 저장 구조 → README** 순으로 영향 범위를 확인합니다.
+
+### 7. Ctrl+C / EOF와 SIGTERM 구분
+
+현재 과제의 필수 요구사항은 실행 중 **Ctrl+C(`KeyboardInterrupt`)와 EOF(`EOFError`)를 안전하게 처리하는 것**이며 실제 코드에 구현되어 있습니다. `run()`의 `finally`에서 `save_state()`를 호출하여 가능한 범위에서 저장 후 종료합니다.
+
+평가 의견의 SIGTERM은 운영체제 수준의 추가 종료 신호 대응에 관한 확장 제안입니다. **원 과제의 필수 요구사항은 아니므로 현재 구현 범위에는 포함하지 않았습니다.** 서버나 장기 실행 프로그램으로 확장할 경우 Python `signal` 모듈 적용을 검토할 수 있습니다.
+
+### 8. 기본 퀴즈와 state.json 확인
+
+`quiz_data.py`에는 Python·Git 기초 기본 퀴즈가 **5개** 정의되어 있습니다. 저장 파일이 없을 때 이 5개를 사용합니다. 현재 저장소의 기존 `state.json`도 기본 5개 문제를 포함합니다. 코드가 저장을 수행하면 현재 스키마에 따라 `hint`와 `score_history`도 함께 저장됩니다.
+
+### 9. 실행 증빙 — 직접 캡처가 필요한 항목
+
+다음 항목은 코드나 README 문구만으로 실제 실행 화면을 대신할 수 없으므로 **사용자가 로컬에서 실행한 화면을 캡처해야 최종 증빙이 완성됩니다.**
+
+```text
+docs/screenshots/
+├─ environment.png     # python --version, git --version 또는 Git 설정
+├─ menu.png            # 프로그램 메뉴
+├─ input-error.png     # 빈 값 / abc / 범위 밖 입력
+├─ add_quiz.png        # 퀴즈 추가
+├─ persistence.png     # 재실행 후 추가 퀴즈·점수 유지
+├─ list.png            # 퀴즈 목록
+├─ play.png            # 퀴즈 풀이
+├─ score.png           # 최고 점수
+├─ git-log.png         # git log --oneline --graph --decorate --all
+└─ clone-pull.png      # clone/pull 실행 결과
+```
+
+특히 평가에서 FAIL이었던 **#5(10개 이상 커밋)**와 **#7(clone/pull)**은 Git 이력 자체는 존재하지만 평가자가 화면 증빙을 요구했으므로 위 두 캡처를 추가해야 합니다.
+
+권장 명령:
+
+```powershell
+git log --oneline --graph --decorate --all
+```
+
+```powershell
+git status
+git log -3 --oneline
+```
+
+실행하지 않은 명령이나 존재하지 않는 스크린샷을 증빙으로 표시하지 않습니다.
+
+### 10. 평가 피드백 반영 현황
+
+| 평가 항목 | 보완 결과 |
+|---|---|
+| #1 메뉴 실행 증빙 | ⚠️ 실제 캡처 필요 |
+| #2 입력 실패 증빙 | ⚠️ 실제 캡처 필요 |
+| #3 재실행 영속성 증빙 | ⚠️ 실제 캡처 필요 |
+| #4 기본 문제 수 일치 | ✅ README 명시 |
+| #5 10개 이상 커밋 증빙 | ⚠️ Git 이력 확인됨, graph 캡처 필요 |
+| #6 병합 그래프 | ⚠️ 병합 이력 확인됨, graph 캡처 필요 |
+| #7 clone/pull 증빙 | ⚠️ 수행 이력 있음, 실행 캡처 필요 |
+| #8 클래스 책임 | ✅ 메서드별 책임 표 추가 |
+| #9 로직 책임 분리 | ✅ 메서드별 책임 표 추가 |
+| #10 입출력 흐름 | ✅ load/save 흐름 설명 유지 |
+| #11 Ctrl+C/EOF | ✅ 필수 구현 충족, SIGTERM은 확장사항으로 구분 |
+| #12 커밋 규칙 | ✅ 규칙·템플릿 추가 |
+| #13 추상화·재사용성 | ✅ 클래스 채택 이유 보강 |
+| #14 JSON 선택 이유 | ✅ CSV와 비교 설명 추가 |
+| #15 권한 오류 | ✅ PermissionError 사용자 안내 추가 |
+| #16 대규모 대응 | ✅ 확장 계획 문서화 |
+| #17 백업·복구 | ✅ state.json.bak 실제 구현 |
+| #18 변경 영향도 | ✅ 변경 유형별 수정 위치 표 추가 |
+
+---
+
 ## 24. GitHub 저장소
 
 https://github.com/soyeon74/python-quiz-game
